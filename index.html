@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#fafafa">
+    <meta name="description" content="Francesco writes systems software in Rust and C++. Unix shells, programming languages, and ARM64 emulation.">
+    <title>frasharp | Systems programmer</title>
+    <script>
+      try {
+        const savedTheme = localStorage.getItem("frasharp-theme");
+        const preferredTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        document.documentElement.dataset.theme =
+          savedTheme === "dark" || savedTheme === "light" ? savedTheme : preferredTheme;
+      } catch {
+        document.documentElement.dataset.theme = "light";
+      }
+    </script>
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <script src="/assets/js/site.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header site-shell">
+      <a class="wordmark" href="/" aria-label="frasharp, home">frasharp</a>
+      <nav class="header-nav" aria-label="Main">
+        <a href="https://github.com/FraSharp" rel="me">GitHub <span aria-hidden="true">↗</span></a>
+        <a href="#projects">Projects</a>
+        <a href="/about/">About</a>
+      </nav>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch color theme" aria-pressed="false" hidden>
+        <span data-theme-icon aria-hidden="true">◐</span>
+      </button>
+    </header>
+    <main class="site-shell" id="main">
+
+      <section class="intro" aria-labelledby="intro-title">
+        <h1 id="intro-title">I build systems software in C and Rust.</h1>
+        <p>I’m Francesco, a computer science student in Cesena, Italy. My work sits close to the operating system and hardware, across shell tools, language tooling, and emulation.</p>
+        <p>Current work includes <a href="/projects/fshell/">fshell</a>, a Unix shell with typed pipelines; my fork of <a href="/projects/shadps4/">Shadlix</a>, itself a Bloodborne-focused shadPS4 fork; and <a href="/projects/flanger/">flanger</a>, a small language frontend.</p>
+      </section>
+      <section class="content-section" id="projects" aria-labelledby="projects-title">
+        <h2 id="projects-title">Projects</h2>
+        <article class="project">
+          <header class="project-heading">
+            <h3><a href="/projects/fshell/">fshell</a></h3>
+            <p class="project-meta">Rust / Unix shell</p>
+          </header>
+          <p>A Unix shell with familiar sh syntax and typed pipelines. Native commands pass structured records instead of text, so you can filter, sort, and map fields without parsing output columns. Ordinary shell syntax remains available for external commands.</p>
+          <figure class="pipeline-example">
+            <pre tabindex="0" aria-label="fshell typed pipeline example"><code><span class="shell-command">ps | filter cpu &gt; 50.0 | map pid command</span></code></pre>
+            <figcaption>Filter process records by CPU use, then select the PID and command fields.</figcaption>
+          </figure>
+          <p class="project-links"><a href="/projects/fshell/">Project details</a><a href="https://github.com/FraSharp/fshell">Source code <span aria-hidden="true">↗</span></a></p>
+        </article>
+        <article class="project">
+          <header class="project-heading">
+            <h3><a href="/projects/shadps4/">shadPS4 / Shadlix</a></h3>
+            <p class="project-meta">C++ / JIT / AArch64</p>
+          </header>
+          <p>My fork of Shadlix (itself a Bloodborne-focused shadPS4 fork) adds work on the native AArch64 backend: lifting x86-64 blocks and emitting AArch64 code, plus guest memory, fault handling, and calls across the guest and host ABI. Recent changes cover LOCK-prefixed atomic updates, scalar float conversion, and shift semantics.</p>
+          <figure class="jit-diagram">
+            <ol class="jit-flow" aria-label="JIT translation path">
+              <li><strong>x86-64</strong><span>Guest instructions</span></li>
+              <li><strong>IR</strong><span>Lifted block</span></li>
+              <li><strong>AArch64</strong><span>Emitted host code</span></li>
+            </ol>
+            <figcaption>The instruction translation path. Guest memory and runtime calls also need to cross the architecture boundary.</figcaption>
+          </figure>
+          <p class="project-links"><a href="/projects/shadps4/">Project details</a><a href="https://github.com/diegolix29/shadPS4/tree/Shadlix">Shadlix fork <span aria-hidden="true">↗</span></a><a href="https://github.com/shadps4-emu/shadPS4">shadPS4 upstream <span aria-hidden="true">↗</span></a></p>
+        </article>
+        <article class="project project-early">
+          <header class="project-heading">
+            <h3><a href="/projects/flanger/">flanger</a></h3>
+            <p class="project-meta">Rust / Experimental language</p>
+          </header>
+          <p>A small language frontend I am building to learn compilers properly. It has a lexer, parser, syntax tree, and spans for diagnostics. So far it parses functions, return statements, integer arithmetic, and basic integer types. Code generation is not started yet.</p>
+          <p class="project-links"><a href="/projects/flanger/">Project details</a></p>
+        </article>
+      </section>
+      <section class="content-section" id="contact" aria-labelledby="contact-title">
+        <h2 id="contact-title">Contact</h2>
+        <p>You can find me on <a href="https://github.com/FraSharp" rel="me">GitHub as FraSharp</a>. For project questions, open an issue in the relevant repository.</p>
+      </section>
+    </main>
+    <footer class="site-shell site-footer">
+      <p>&copy; <span data-current-year>2026</span> frasharp</p>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#fafafa">
+    <meta name="description" content="My fork of Shadlix, a Bloodborne-focused shadPS4 fork, with work on native AArch64 JIT and runtime support for Apple Silicon.">
+    <title>Shadlix | frasharp</title>
+    <script>
+      try {
+        const savedTheme = localStorage.getItem("frasharp-theme");
+        const preferredTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        document.documentElement.dataset.theme =
+          savedTheme === "dark" || savedTheme === "light" ? savedTheme : preferredTheme;
+      } catch {
+        document.documentElement.dataset.theme = "light";
+      }
+    </script>
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <script src="/assets/js/site.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header site-shell">
+      <a class="wordmark" href="/" aria-label="frasharp, home">frasharp</a>
+      <nav class="header-nav" aria-label="Main">
+        <a href="https://github.com/FraSharp" rel="me">GitHub <span aria-hidden="true">↗</span></a>
+        <a href="/#projects">Projects</a>
+        <a href="/about/">About</a>
+      </nav>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch color theme" aria-pressed="false" hidden>
+        <span data-theme-icon aria-hidden="true">◐</span>
+      </button>
+    </header>
+    <main class="site-shell" id="main">
+      <header class="page-heading">
+        <p class="back-link"><a href="/#projects"><span aria-hidden="true">←</span> Projects</a></p>
+        <p class="project-meta">My fork of Shadlix · Bloodborne-focused shadPS4 fork · Apple Silicon</p>
+        <h1>Shadlix</h1>
+        <p>I work on my fork of Shadlix, itself a Bloodborne-focused fork of shadPS4. My focus is its native AArch64 backend and runtime, translating x86-64 guest code for Apple Silicon.</p>
+        <p class="project-links"><a href="https://github.com/diegolix29/shadPS4/tree/Shadlix">Shadlix fork <span aria-hidden="true">↗</span></a><a href="https://github.com/shadps4-emu/shadPS4">shadPS4 upstream <span aria-hidden="true">↗</span></a></p>
+      </header>
+      <section class="content-section" aria-labelledby="translation-title">
+        <h2 id="translation-title">From x86-64 guest to AArch64 host</h2>
+        <p>PS4 binaries use x86-64 instructions. Shadlix lifts each block into an intermediate representation, then emits AArch64 code for Apple Silicon. Memory accesses and runtime calls still have to preserve guest behavior as they cross into the host process.</p>
+      </section>
+      <section class="content-section" aria-labelledby="semantics-title">
+        <h2 id="semantics-title">Memory, flags, and instruction semantics</h2>
+        <p>Recent emitter work covers scalar integer-to-float conversions and shift rules, as well as memory operations with the x86 <code>LOCK</code> prefix. For <code>ADD</code>, <code>SUB</code>, <code>INC</code>, <code>DEC</code>, <code>AND</code>, <code>OR</code>, and <code>XOR</code>, a locked update must keep the read, operation, and write together under contention. Operand alignment determines whether it fits in one atomic container or needs the serialized boundary path.</p>
+        <p>Flag results must follow the guest operation and operand width too.</p>
+      </section>
+      <section class="content-section" aria-labelledby="runtime-title">
+        <h2 id="runtime-title">The runtime around translated code</h2>
+        <p>The JIT also depends on the system around it: guest memory has to map correctly, host faults have to become guest behavior, and calls between translated code and native code have to respect both ABIs. I work on these boundaries alongside the instruction emitter.</p>
+      </section>
+      <section class="content-section" aria-labelledby="tests-title">
+        <h2 id="tests-title">Differential tests for the full state</h2>
+        <p>ELF test cases compare the same guest instructions through the ARM64 JIT and Unicorn, including registers, flags, and memory. The locked-operation cases cover seven operations at 8-, 32-, and 64-bit widths, with aligned, unaligned, and boundary-straddling operands. For a fix, I also check that the regression fails when the old behavior is restored.</p>
+      </section>
+    </main>
+    <footer class="site-shell site-footer">
+      <p>&copy; <span data-current-year>2026</span> frasharp</p>
+    </footer>
+  </body>
+</html>

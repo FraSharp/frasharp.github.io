@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#fafafa">
+    <meta name="description" content="About Francesco and the kinds of software he builds.">
+    <title>About | frasharp</title>
+    <script>
+      try {
+        const savedTheme = localStorage.getItem("frasharp-theme");
+        const preferredTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        document.documentElement.dataset.theme =
+          savedTheme === "dark" || savedTheme === "light" ? savedTheme : preferredTheme;
+      } catch {
+        document.documentElement.dataset.theme = "light";
+      }
+    </script>
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <script src="/assets/js/site.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header site-shell">
+      <a class="wordmark" href="/" aria-label="frasharp, home">frasharp</a>
+      <nav class="header-nav" aria-label="Main">
+        <a href="https://github.com/FraSharp" rel="me">GitHub <span aria-hidden="true">↗</span></a>
+        <a href="/#projects">Projects</a>
+        <a href="/about/" aria-current="page">About</a>
+      </nav>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch color theme" aria-pressed="false" hidden>
+        <span data-theme-icon aria-hidden="true">◐</span>
+      </button>
+    </header>
+    <main class="site-shell" id="main">
+
+      <header class="page-heading">
+        <p class="back-link"><a href="/"><span aria-hidden="true">←</span> Home</a></p>
+        <h1>About</h1>
+      </header>
+      <section class="prose" aria-label="About Francesco">
+        <p>I am Francesco, a computer science student based in Cesena, Italy. I write systems software in C and Rust. I have about eight years with C and two with Rust.</p>
+        <p>I started with PHP around 2016. From there I moved toward systems: work on the Linux kernel, custom ROMs for Android phones, custom kernels for my computers and phones, and a long period with Hackintosh setups where boot, ACPI tables, and drivers had to be understood to get a working machine. I used Gentoo and Arch for years. I now do most of my work on a MacBook with macOS, which is also what drew me into ARM64 work.</p>
+        <p>My current projects are <a href="/projects/fshell/">fshell</a>, a Unix shell that keeps familiar sh syntax and passes typed values between commands; my fork of <a href="/projects/shadps4/">Shadlix</a>, itself a Bloodborne-focused fork of shadPS4, where I work on the native AArch64 JIT and runtime; and <a href="/projects/flanger/">flanger</a>, a small language frontend where I am learning lexer, parser, and diagnostics work from the ground up.</p>
+        <p>I care about programming languages, operating systems, and how software runs on different hardware. This site is my public log for that work. It is mostly a personal record, and a place to point peers and future internships to.</p>
+        <p><a href="https://github.com/FraSharp" rel="me">My GitHub profile</a></p>
+      </section>
+    </main>
+    <footer class="site-shell site-footer">
+      <p>&copy; <span data-current-year>2026</span> frasharp</p>
+    </footer>
+  </body>
+</html>

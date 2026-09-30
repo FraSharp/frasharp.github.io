@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#fafafa">
+    <meta name="description" content="flanger, an early programming language frontend written in Rust.">
+    <title>flanger | frasharp</title>
+    <script>
+      try {
+        const savedTheme = localStorage.getItem("frasharp-theme");
+        const preferredTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        document.documentElement.dataset.theme =
+          savedTheme === "dark" || savedTheme === "light" ? savedTheme : preferredTheme;
+      } catch {
+        document.documentElement.dataset.theme = "light";
+      }
+    </script>
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <script src="/assets/js/site.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header site-shell">
+      <a class="wordmark" href="/" aria-label="frasharp, home">frasharp</a>
+      <nav class="header-nav" aria-label="Main">
+        <a href="https://github.com/FraSharp" rel="me">GitHub <span aria-hidden="true">↗</span></a>
+        <a href="/#projects">Projects</a>
+        <a href="/about/">About</a>
+      </nav>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch color theme" aria-pressed="false" hidden>
+        <span data-theme-icon aria-hidden="true">◐</span>
+      </button>
+    </header>
+    <main class="site-shell" id="main">
+      <header class="page-heading">
+        <p class="back-link"><a href="/#projects"><span aria-hidden="true">←</span> Projects</a></p>
+        <h1>flanger</h1>
+        <p>A small language frontend in Rust. Built to learn compilers by keeping the scope small.</p>
+      </header>
+      <section class="content-section" aria-labelledby="why-title">
+        <h2 id="why-title">Why, given fshell already parses</h2>
+        <p>fshell already has a lexer, a parser, and a syntax tree, so starting over looks redundant. It is, on purpose. fshell's frontend grew around shell constraints: bare words, pipelines, POSIX fallback, aliases that expand as you type. Every decision there serves the shell.</p>
+        <p>flanger is the opposite exercise: a conventional language built from nothing, small enough that every part can be understood fully and tested exactly, with nothing to serve except the language itself. It is slower than reusing fshell's frontend because learning is the point, not the fastest route to a working parser. And it heads somewhere fshell never needed to go: past parsing into code generation.</p>
+      </section>
+      <section class="content-section" aria-labelledby="today-title">
+        <h2 id="today-title">The language today</h2>
+        <p>This is close to the whole language right now:</p>
+        <pre tabindex="0" aria-label="Example flanger program"><code>fn main() -&gt; i64 {
+  return 1 + 2 * 3;
+}</code></pre>
+        <p>Functions take no parameters and hold a single return statement. The return type can be left out, in which case it defaults to Unit. Expressions are integer arithmetic with the usual precedence, and parentheses override it. Types are i64 and i32.</p>
+      </section>
+      <section class="content-section" aria-labelledby="lexer-title">
+        <h2 id="lexer-title">Lexer</h2>
+        <p>Handwritten and byte based, ASCII only. UTF-8 handling is still an open todo in the code. Every token carries a span with start and end offsets, so errors point at the exact characters involved.</p>
+        <p>It tells minus apart from arrow by peeking one byte ahead, recognizes fn and return while leaving longer names like returnValue as identifiers, and reports two error kinds: unexpected character and integer overflow. Both carry spans.</p>
+      </section>
+      <section class="content-section" aria-labelledby="parser-title">
+        <h2 id="parser-title">Parser and errors</h2>
+        <p>Recursive descent over the token stream. Additive expressions sit over multiplicative over primaries, which is what gives 1 + 2 * 3 the standard grouping, with parenthesized expressions as primaries.</p>
+        <p>Every error carries a span plus what was expected against what actually arrived, and unknown type names are their own error rather than a generic mismatch. Lex errors pass through the parser wrapped, so one error type covers both stages.</p>
+        <p>The expression tree starts with two cases:</p>
+        <pre tabindex="0" aria-label="Expression enum from flanger’s AST"><code>pub enum Expression {
+    Integer(i64),
+    Binary(Box&lt;BinaryExpression&gt;),
+}</code></pre>
+        <p>Tokens, spans, and error types live in their own modules so each stage can be tested on its own. Function names borrow from the source text instead of copying it.</p>
+      </section>
+      <section class="content-section" aria-labelledby="tests-title">
+        <h2 id="tests-title">Testing</h2>
+        <p>Fifteen tests, all passing, roughly one per behavior: token spans, minus versus arrow, keyword prefixes, overflow, precedence, associativity, parentheses. The tests pin spans exactly, not just token kinds, since spans are the diagnostic contract the rest will rely on.</p>
+      </section>
+      <section class="content-section" aria-labelledby="status-title">
+        <h2 id="status-title">Status</h2>
+        <p>Frontend work in progress. Code generation and execution are not started, and the command line entry point is still a stub that prints a placeholder. The natural next steps are function parameters, more statement forms, and then a decision on a simple backend.</p>
+      </section>
+    </main>
+    <footer class="site-shell site-footer">
+      <p>&copy; <span data-current-year>2026</span> frasharp</p>
+    </footer>
+  </body>
+</html>

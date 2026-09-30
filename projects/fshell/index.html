@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#fafafa">
+    <meta name="description" content="A closer look at fshell, a structured-data Unix shell written in Rust.">
+    <title>fshell | frasharp</title>
+    <script>
+      try {
+        const savedTheme = localStorage.getItem("frasharp-theme");
+        const preferredTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        document.documentElement.dataset.theme =
+          savedTheme === "dark" || savedTheme === "light" ? savedTheme : preferredTheme;
+      } catch {
+        document.documentElement.dataset.theme = "light";
+      }
+    </script>
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <script src="/assets/js/site.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header site-shell">
+      <a class="wordmark" href="/" aria-label="frasharp, home">frasharp</a>
+      <nav class="header-nav" aria-label="Main">
+        <a href="https://github.com/FraSharp" rel="me">GitHub <span aria-hidden="true">↗</span></a>
+        <a href="/#projects">Projects</a>
+        <a href="/about/">About</a>
+      </nav>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch color theme" aria-pressed="false" hidden>
+        <span data-theme-icon aria-hidden="true">◐</span>
+      </button>
+    </header>
+    <main class="site-shell" id="main">
+
+      <header class="page-heading">
+        <p class="back-link"><a href="/#projects"><span aria-hidden="true">←</span> Projects</a></p>
+        <h1>fshell</h1>
+        <p>A Unix shell in Rust. Familiar sh syntax, typed pipelines, and a POSIX path for existing scripts.</p>
+        <p class="project-links"><a href="https://github.com/FraSharp/fshell">Source code</a><a href="https://github.com/FraSharp/fshell/blob/main/README.md">Documentation</a></p>
+      </header>
+      <section class="content-section" aria-labelledby="why-title">
+        <h2 id="why-title">Why another shell</h2>
+        <p>Standard shells pass text between commands. Information that starts structured in the kernel is formatted to text, then the next command parses it again with awk, sed, grep, and cut. That works but it is easy to break.</p>
+        <p>Nushell showed that typed pipelines fix much of this, but it changed the syntax and left POSIX behind. I wanted the typed part without relearning the shell. fshell keeps sh syntax and muscle memory, and passes typed records between its native commands.</p>
+      </section>
+      <section class="content-section" aria-labelledby="pipelines-title">
+        <h2 id="pipelines-title">Structured pipelines</h2>
+        <p>Native commands exchange typed values. You can filter process records and pick fields inside the pipeline:</p>
+        <pre tabindex="0" aria-label="Example fshell pipeline"><code>ps | filter cpu &gt; 50.0 | map pid command | limit 5</code></pre>
+        <p>This lists the PID and command of up to five processes using more than 50 percent CPU. No column counting.</p>
+        <p>Common stages are filter, map, sort, grep, count, and limit, with formatters such as @table, @json, @csv, and @text. Builtins include a git aware ls, ps with typed CPU and memory fields, a recursive files scanner, extract for common archive formats, plus string, json, csv, diff, vault, serve, and explain.</p>
+        <pre tabindex="0" aria-label="File listing pipeline"><code>ls | filter type == "file" | sort size desc | map name size | limit 5 | @table</code></pre>
+      </section>
+      <section class="content-section" aria-labelledby="interactive-title">
+        <h2 id="interactive-title">Interactive use</h2>
+        <p>The prompt includes tab completion grouped by kind, parameter hints, and suggestions drawn from history and the current directory. History lives in SQLite and can be searched.</p>
+        <p>Aliases expand as you type so you see what will run. Backspace collapses the expansion. The git prompt reads git indexes directly. A transient mode keeps old prompts short. Config edit opens a settings screen for options, themes, and aliases.</p>
+      </section>
+      <section class="content-section" aria-labelledby="scripts-title">
+        <h2 id="scripts-title">Scripts and POSIX</h2>
+        <p>Scripts use .fsh files with let bindings, typed functions, match, try and catch, and heredocs. POSIX shell can sit in the same file when needed. This is a release script in the shape I actually write them:</p>
+        <pre tabindex="0" aria-label="Mixed fsh and POSIX release script"><code>let version = "v0.1.0"
+let dist = "./dist"
+
+fn build {
+  echo "building {version}..."
+  cargo build --release
+}
+
+sh {
+  if ! command -v cargo &gt;/dev/null 2&gt;&amp;1; then
+    echo "cargo is missing" &gt;&amp;2
+    exit 1
+  fi
+  if [ ! -d "$dist" ]; then
+    mkdir -p "$dist"
+  fi
+}
+
+build
+
+sh {
+  tar -czf "$dist/release.tar.gz" -C "target/release" "fsh"
+  shasum -a 256 "$dist/release.tar.gz" &gt; "$dist/checksum.txt"
+}
+
+ls "target/release" | filter name == "fsh" | map name size | @table
+ls $dist | @table</code></pre>
+        <p>The split is deliberate. The sh blocks hold portable checks and archiving idioms that already exist: command presence tests, mkdir -p, tar, shasum, redirections. They behave the same everywhere, so rewriting them in fsh would buy nothing. The fsh parts do orchestration and typed inspection: a small build function plus ls pipelines that read size and name as fields instead of parsing ls output.</p>
+        <p>Each sh block runs in process against the same environment, so variables and working directory are shared both ways. The same holds for posix and bash blocks, for sourcing bash scripts such as virtualenv activation, and for running whole files with an sh or bash shebang.</p>
+        <p>Routing also happens per stage inside one pipeline. Each stage resolves in order: aliases, user functions, builtins, then external commands on PATH. A stage name that matches a native keyword still runs the external binary when it carries a flag, so this runs the native sort:</p>
+        <pre tabindex="0" aria-label="Native sort stage"><code>ls | sort size desc</code></pre>
+        <p>While this runs the system sort in the same pipeline shape:</p>
+        <pre tabindex="0" aria-label="External sort stage"><code>ls | sort -n -k 2</code></pre>
+        <p>Lines that fail fsh parsing but look like POSIX fall back to the POSIX engine, which covers cases like find with exec. The result is that bash, zsh, and POSIX lines mostly run as is, with native stages suggested only as a slow migration where they read better. For example, awk column splits can stay until you want the typed form:</p>
+        <pre tabindex="0" aria-label="Gradual migration example"><code>ps aux | awk '{if ($3 &gt; 50.0) print $2, $11}'
+ps | filter cpu &gt; 50.0 | map pid command | limit 5</code></pre>
+      </section>
+      <section class="content-section" aria-labelledby="status-title">
+        <h2 id="status-title">Status</h2>
+        <p>fshell is experimental and still in development. The <a href="https://github.com/FraSharp/fshell/blob/main/README.md">README</a> covers installation, examples, and current limitations.</p>
+      </section>
+    </main>
+    <footer class="site-shell site-footer">
+      <p>&copy; <span data-current-year>2026</span> frasharp</p>
+    </footer>
+  </body>
+</html>
